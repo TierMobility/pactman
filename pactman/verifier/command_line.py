@@ -12,14 +12,6 @@ from .result import Result
 # TODO: add these options, which exist in the ruby command line?
 '''
 @click.option(
-    'username', '--pact-broker-username',
-    help='Username for Pact Broker basic authentication.')
-@click.option(
-    'password', '--pact-broker-password',
-    envvar='PACT_BROKER_PASSWORD',
-    help='Password for Pact Broker basic authentication. Can also be specified'
-         ' via the environment variable PACT_BROKER_PASSWORD')
-@click.option(
     'header', '--custom-provider-header',
     envvar='CUSTOM_PROVIDER_HEADER',
     help='Header to add to provider state set up and '
@@ -45,8 +37,14 @@ parser.add_argument('provider_url', metavar='PROVIDER_URL',
 parser.add_argument('provider_setup_url', metavar='PROVIDER_SETUP_URL',
                     help='the URL to provider state setup')
 
-parser.add_argument('-b', '--broker-url', default=None,
+parser.add_argument('-b', '--pact-broker-url', default=None,
                     help='the URL of the pact broker; may also be provided in PACT_BROKER_URL environment variable')
+
+parser.add_argument('-u', '--pact-broker-username', default=None,
+                    help='the username for Pact Broker basic authentication; may also be provided in PACT_BROKER_USERNAME environment variable')
+
+parser.add_argument('-w', '--pact-broker-password', default=None,
+                    help='the password for Pact Broker basic authentication; may also be provided in PACT_BROKER_PASSWORD environment variable')
 
 parser.add_argument('-l', '--local-pact-file', default=None,
                     help='path to a local pact file')
@@ -130,7 +128,8 @@ def main():
     if args.local_pact_file:
         pacts = [BrokerPact.load_file(args.local_pact_file, result_factory)]
     else:
-        pacts = BrokerPacts(args.provider_name, args.broker_url, result_factory).consumers()
+        pacts = BrokerPacts(args.provider_name, pact_broker_url=args.broker_url, pact_broker_username=args.pact_broker_username,
+                            pact_broker_password=args.pact_broker_password, result_factory=result_factory).consumers()
     success = True
     for pact in pacts:
         if args.consumer and pact.consumer != args.consumer:

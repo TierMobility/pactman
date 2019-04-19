@@ -22,9 +22,11 @@ def pact_id(param):
 
 
 class BrokerPacts:
-    def __init__(self, provider_name, pact_broker_url=None, result_factory=LoggedResult):
+    def __init__(self, provider_name, pact_broker_url=None, pact_broker_username=None, pact_broker_password=None, result_factory=LoggedResult):
         self.provider_name = provider_name
         self.pact_broker_url = pact_broker_url or os.environ.get('PACT_BROKER_URL')
+        self.pact_broker_username = pact_broker_username or os.environ.get('PACT_BROKER_USERNAME')
+        self.pact_broker_password = pact_broker_password or os.environ.get('PACT_BROKER_PASSWORD')
         if not self.pact_broker_url:
             raise ValueError('pact broker URL must be specified')
         self.result_factory = result_factory
@@ -35,7 +37,12 @@ class BrokerPacts:
         # pact broker URL pointing to a different resource)
         url_parts = urllib.parse.urlparse(self.pact_broker_url)
         url = f'{url_parts.scheme}://{url_parts.netloc}/'
-        return Navigator.hal(url, default_curie='pb')
+        nav = Navigator.hal(url, default_curie='pb')
+        if self.pact_broker_username is not None:
+            if self.pact_broker_password is None:
+                raise ValueError('pact broker password must be specified')
+            nav.authenticate((self.pact_broker_username, self.pact_broker_password))
+        return nav
 
     def consumers(self):
         nav = self.get_broker_navigator()

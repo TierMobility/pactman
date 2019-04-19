@@ -13,6 +13,10 @@ def pytest_addoption(parser):
                      help="pact JSON files to verify (wildcards allowed)")
     parser.addoption("--pact-broker-url", default='',
                      help="pact broker URL")
+    parser.addoption("--pact-broker-username", default=None,
+                     help="pact broker username")
+    parser.addoption("--pact-broker-password", default=None,
+                     help="pact broker password")
     parser.addoption("--pact-provider-name", default=None,
                      help="provider pact name")
     parser.addoption("--pact-publish-results", action="store_true", default=False,
@@ -92,7 +96,13 @@ def pytest_generate_tests(metafunc):
             provider_name = metafunc.config.getoption('pact_provider_name')
             if not provider_name:
                 raise ValueError('--pact-broker-url requires the --pact-provider-name option')
-            broker_pacts = BrokerPacts(provider_name, pact_broker_url=broker_url, result_factory=PytestResult)
+
+            pact_broker_password = metafunc.config.getoption('pact_broker_password')
+            pact_broker_username = metafunc.config.getoption('pact_broker_username')
+
+            broker_pacts = BrokerPacts(provider_name, pact_broker_url=broker_url,
+                                       pact_broker_username=pact_broker_username, pact_broker_password=pact_broker_password,
+                                       result_factory=PytestResult)
             metafunc.parametrize("pact_verifier", flatten_pacts(broker_pacts.consumers()),
                                  ids=test_id, indirect=True)
 
