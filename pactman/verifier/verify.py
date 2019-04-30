@@ -168,8 +168,9 @@ class Interaction:
 
     @property
     def _request_headers(self):
-        headers = dict(self.extra_provider_headers)
+        headers = {}
         headers.update(self.request.get('headers', {}))
+        headers.update(self.extra_provider_headers)
         return headers
 
     @property
