@@ -123,7 +123,7 @@ class Interaction:
             name = state['name']
             params = state.get('params', {})
             log.debug(f"Setting up provider state {name!r} with params {params}")
-            provider_setup(state['name'], **params)
+            provider_setup(self, state['name'], **params)
             if params:
                 log.info(f'Using provider state {name} with params {params}')
             else:
