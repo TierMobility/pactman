@@ -35,7 +35,7 @@ class Interaction:
         return f"<Interaction {self.pact.consumer}:{self.description}>"
 
     def __str__(self):
-        return f"{self.pact.consumer} with request '{self.description}'"
+        return f"{self.pact.consumer} with request '{self.description}' and state {self.providerStates or self.providerState}"
 
     def verify(self, service_url, setup_url, extra_provider_headers={}):
         self.extra_provider_headers = extra_provider_headers
@@ -112,7 +112,7 @@ class Interaction:
     def set_provider_state(self, provider_setup):
         if self.providerState is not None:
             log.debug(f'Setting up provider state {self.providerState!r}')
-            provider_setup(self.providerState)
+            provider_setup(self, self.providerState)
             return
         if self.providerStates is None:
             log.debug(f'No provider state specified!')
