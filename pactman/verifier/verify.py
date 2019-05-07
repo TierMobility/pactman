@@ -54,7 +54,9 @@ class Interaction:
                 self.set_provider_state(provider_setup)
             except ProviderStateMissing as e:
                 self.result.warn(f'Unable to configure provider state: {e}')
-            self.result.success = self.run_service(service_url)
+            result = self.run_service(service_url)
+            if not result:
+                self.result.fail('Failed', '')
         finally:
             self.result.end()
 
